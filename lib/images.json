@@ -1,0 +1,62 @@
+{
+  "loja-fachada": {
+    "widths": [
+      480,
+      488
+    ],
+    "width": 488,
+    "height": 510
+  },
+  "loja-interior-1": {
+    "widths": [
+      382
+    ],
+    "width": 382,
+    "height": 510
+  },
+  "loja-interior-2": {
+    "widths": [
+      480,
+      613
+    ],
+    "width": 613,
+    "height": 510
+  },
+  "produto-perfil": {
+    "widths": [
+      382
+    ],
+    "width": 382,
+    "height": 510
+  },
+  "produto-retangular": {
+    "widths": [
+      384
+    ],
+    "width": 384,
+    "height": 510
+  },
+  "produto-gatinho": {
+    "widths": [
+      382
+    ],
+    "width": 382,
+    "height": 510
+  },
+  "equipe-01": {
+    "widths": [
+      426
+    ],
+    "width": 426,
+    "height": 618
+  },
+  "foco-fundo": {
+    "widths": [
+      480,
+      960,
+      1600
+    ],
+    "width": 1600,
+    "height": 893
+  }
+}
