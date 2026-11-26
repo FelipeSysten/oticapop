@@ -7,7 +7,7 @@ export default function MapEmbed({ query }: { query: string }) {
   const [open, setOpen] = useState(false);
   const q = encodeURIComponent(query);
   return (
-    <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl bg-sand md:aspect-auto md:h-full md:min-h-80">
+    <div className="relative size-full min-h-80 overflow-hidden rounded-3xl bg-sand">
       {open ? (
         <iframe
           title="Mapa: Ótica Pop no Centro de Itabuna"

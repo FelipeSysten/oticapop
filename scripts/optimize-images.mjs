@@ -17,8 +17,6 @@ const SOURCES = {
   "produto-retangular": "brief/fotos-produtos/unnamed (5).webp",
   "produto-gatinho": "brief/fotos-produtos/unnamed (6).webp",
   "equipe-01": "brief/equipe/e9a3a334-9f2f-4052-bbf8-0c79bebf82ee.jpg",
-  // Imagem ilustrativa (gerada por IA) usada só como fundo da cena "foco"
-  "foco-fundo": "brief/referencias/Gemini_Generated_Image_5rdzt05rdzt05rdz.jpg",
 };
 
 await mkdir(OUT, { recursive: true });

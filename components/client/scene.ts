@@ -4,6 +4,33 @@
 
 const PI = Math.PI;
 
+// ---------------------------------------------------------------------------------------------
+// AJUSTE FINO: intensidade de cada efeito (0 desliga)
+// ---------------------------------------------------------------------------------------------
+/** Inclinação (rad) do óculos por velocidade de scroll. Mais alto = inclina mais ao rolar rápido. */
+export const VELOCITY_TILT = 0.22;
+/** Giro extra (rad) no eixo Y por velocidade de scroll. */
+export const VELOCITY_SPIN = 0.5;
+/** Rigidez da "mola" que devolve o óculos à pose (maior = volta mais rápido, menos balanço). */
+export const VELOCITY_SPRING = 60;
+/** Amortecimento da mola (menor = balança mais antes de assentar). */
+export const VELOCITY_DAMPING = 9;
+/** Rotação máxima (rad) seguindo o mouse. Só em ponteiro fino (mouse/trackpad). */
+export const POINTER_STRENGTH = 0.25;
+/** Aproximação da câmera (unidades) no meio da página. */
+export const CAMERA_DOLLY = 0.9;
+/** Balanço lateral da câmera (unidades). */
+export const CAMERA_SWAY = 0.25;
+/** Quantidade de brilhos 3D. Em aparelho fraco (lowTier) não renderiza. */
+export const SPARKLE_COUNT = { desktop: 60, mobile: 20 };
+/** Velocidade base da faixa "R$ 89,90" (px por frame) e ganho extra por px/s de scroll. */
+export const MARQUEE_SPEED = 0.6;
+export const MARQUEE_BOOST = 0.004;
+/** Trecho do scroll da cena 2 (0..1 dentro da parte fixa) em que o vídeo vai do 1º ao último quadro. */
+export const VIDEO_RANGE: [number, number] = [0.04, 0.78];
+/** Suavização do vídeo (0..1 por frame; menor = mais "manteiga", maior = mais colado ao dedo). */
+export const VIDEO_SMOOTH = 0.18;
+
 export const FIELDS = [
   "x", // posição horizontal em frações da meia-largura da tela (-1..1)
   "y", // posição vertical em frações da meia-altura da tela (-1..1, positivo = para cima)
@@ -30,13 +57,11 @@ export const FRAME_NAMES = ["Preto clássico", "Tartaruga", "Laranja pop", "Cris
 const STOPS: Stop[] = [
   // 1. Hero: encaixado no slot ao lado do título, levemente virado, lentes com reflexo laranja
   { at: ["inicio", 0.5], v: { x: 0, y: 0, z: 0, s: 1, rx: 0.1, ry: -0.3, frame: 0, tint: 0, glow: 0.6, blink: 0, op: 1, lens: 0, hero: 1, cta: 0 } },
-  // 2. Enxergue melhor: vem para o centro e a câmera atravessa a lente
-  { at: ["exame", 0], v: { x: 0, y: -0.14, z: 0, s: 1.05, rx: 0, ry: 0, glow: 0.15, lens: 0, hero: 0, op: 1 }, m: { y: 0.15, s: 1 } },
-  { at: ["exame", 0.1], v: { z: 0, lens: 0, op: 1 } },
-  { at: ["exame", 0.38], v: { op: 1 } },
-  { at: ["exame", 0.42], v: { lens: 1 } },
-  { at: ["exame", 0.48], v: { z: 9.4, op: 0 } },
-  { at: ["exame", 0.55], v: { x: 0, y: -0.14, s: 1.05, rx: 0, ry: 0, glow: 0.15, lens: 1 }, m: { y: 0.15, s: 1 } },
+  // 2. Enxergue melhor: o óculos 3D se alinha ao óculos do vídeo e se dissolve nele ("o 3D vira real")
+  { at: ["exame", 0], v: { x: 0, y: 0.02, z: 0, s: 1.5, rx: 0, ry: 0, glow: 0.1, lens: 0, hero: 0, op: 1 }, m: { y: 0.1, s: 1.03 } },
+  { at: ["exame", 0.2], v: { op: 1, s: 1.5 }, m: { s: 1.03 } },
+  { at: ["exame", 0.3], v: { op: 0, s: 1.8, z: 1.5 }, m: { s: 1.25 } },
+  { at: ["exame", 0.55], v: { x: 0, y: 0.02, rx: 0, ry: 0, glow: 0.1 }, m: { y: 0.1 } },
   // 3. Preço: reaparece girando, gira 180° e troca a cor da armação em 4 passos
   { at: ["preco", 0], v: { op: 0, z: -4, x: 0.48, y: 0, s: 1, ry: -PI / 2, lens: 0, frame: 0, glow: 0 }, m: { x: 0, y: 0.52, s: 0.72 } },
   { at: ["preco", 0.15], v: { op: 1, z: 0, ry: 0, frame: 0 } },
@@ -58,8 +83,8 @@ const STOPS: Stop[] = [
   { at: ["sol", 0.32], v: { tint: 1 } },
   { at: ["sol", 0.82], v: { tint: 1, x: 0.45, y: 0, s: 1.05, op: 1 }, m: { x: 0, y: 0.42, s: 0.85 } },
   // 6. A loja: descansa pequeno no canto
-  { at: ["loja", 0], v: { tint: 0, x: 0.8, y: 0.68, s: 0.3, ry: 2 * PI + 0.45, op: 1 }, m: { x: 0.62, y: 0.78, s: 0.3, op: 0 } },
-  { at: ["loja", 0.9], v: { x: 0.8, y: 0.68, s: 0.3, op: 1 }, m: { op: 0 } },
+  { at: ["loja", 0], v: { tint: 0, x: 0.84, y: 0.7, s: 0.26, ry: 2 * PI + 0.45, op: 1 }, m: { x: 0.62, y: 0.78, s: 0.3, op: 0 } },
+  { at: ["loja", 0.9], v: { x: 0.84, y: 0.7, s: 0.26, op: 1 }, m: { op: 0 } },
   // 7. Clientes: fora de quadro
   { at: ["clientes", 0.1], v: { y: 1.4, op: 0, glow: 0, cta: 0 }, m: { op: 0 } },
   // 8. CTA final: volta ao centro (slot acima do título) e pisca
@@ -77,6 +102,12 @@ export const scene = {
   intro: 0,
   mobile: false,
   lowTier: false,
+  /** Velocidade do scroll em px/ms (positivo = descendo). */
+  velocity: 0,
+  /** Mouse normalizado (-1..1). Fica em 0 em telas de toque. */
+  pointer: { x: 0, y: 0 },
+  /** Progresso total da página (0..1). */
+  progress: 0,
 };
 
 type Track = { pos: number[]; val: number[] };

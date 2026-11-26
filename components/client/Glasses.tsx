@@ -4,7 +4,17 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
-import { DEFAULTS, FIELDS, scene, type Values } from "./scene";
+import {
+  DEFAULTS,
+  FIELDS,
+  POINTER_STRENGTH,
+  scene,
+  VELOCITY_DAMPING,
+  VELOCITY_SPIN,
+  VELOCITY_SPRING,
+  VELOCITY_TILT,
+  type Values,
+} from "./scene";
 
 const RIM_X = 1.08; // centro de cada aro
 const RIM_R = 0.9; // raio do aro
@@ -48,6 +58,8 @@ const slotRect = (id: string) => document.getElementById(id)?.getBoundingClientR
 export default function Glasses({ quality }: { quality: "high" | "low" }) {
   const group = useRef<THREE.Group>(null);
   const cur = useRef<Values>({ ...DEFAULTS });
+  const spring = useRef({ x: 0, v: 0 }); // mola da velocidade do scroll
+  const ptr = useRef({ x: 0, y: 0 }); // mouse suavizado
   const { size } = useThree();
   const high = quality === "high";
 
@@ -163,9 +175,28 @@ export default function Glasses({ quality }: { quality: "high" | "low" }) {
     py -= k * vh * 0.55;
     sc *= 0.7 + 0.3 * intro;
 
-    g.position.set(px, py + Math.sin(time * 1.1) * 0.035 * sc, c.z);
+    // mola: segue a velocidade do scroll e, quando para, volta à pose do keyframe com um leve balanço
+    const sp = spring.current;
+    const vTarget = THREE.MathUtils.clamp(scene.velocity, -2.5, 2.5);
+    sp.v += (vTarget - sp.x) * VELOCITY_SPRING * d;
+    sp.v *= Math.exp(-VELOCITY_DAMPING * d);
+    sp.x += sp.v * d;
+    const tilt = sp.x * VELOCITY_TILT;
+
+    // mouse (parallax leve)
+    const pt = ptr.current;
+    pt.x = THREE.MathUtils.damp(pt.x, scene.pointer.x, 4, d);
+    pt.y = THREE.MathUtils.damp(pt.y, scene.pointer.y, 4, d);
+    px += pt.x * 0.06 * sc;
+    py -= pt.y * 0.04 * sc;
+
+    g.position.set(px, py + Math.sin(time * 1.1) * 0.035 * sc - tilt * 0.15 * sc, c.z);
     g.scale.setScalar(sc);
-    g.rotation.set(c.rx + Math.sin(time * 0.7) * 0.04, c.ry + Math.sin(time * 0.5) * 0.09 + k * Math.PI * 2.2, 0);
+    g.rotation.set(
+      c.rx + Math.sin(time * 0.7) * 0.04 + tilt * 0.5 + pt.y * POINTER_STRENGTH * 0.6,
+      c.ry + Math.sin(time * 0.5) * 0.09 + k * Math.PI * 2.2 + sp.x * VELOCITY_SPIN * 0.5 + pt.x * POINTER_STRENGTH,
+      -tilt + Math.sin(time * 0.6) * 0.03,
+    );
 
     const op = c.op * Math.min(1, intro * 2.5);
     g.visible = op > 0.01;

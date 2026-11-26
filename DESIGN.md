@@ -94,3 +94,11 @@ As duas imagens em `brief/referencias/` foram geradas por IA (Gemini). Elas most
 - **Celular:** o 3D carrega na primeira interação (toque ou scroll) ou 4s depois do load. No desktop, carrega quando o navegador fica ocioso.
 - **Fachada:** a foto da fachada (placa "pop óculos" e o vizinho de cima) ficou fora do site até a loja confirmar.
 - **Roteiro:** os keyframes de cada cena ficam em `components/client/scene.ts`, com valores separados para desktop e celular.
+
+## 9. Versão interativa (vídeo + scroll dinâmico)
+
+- **Cena 2 com vídeo:** o vídeo de `brief/referencias/` (gerado por IA, uso ilustrativo, nunca como produto) virou uma sequência de quadros WebP desenhada num `<canvas>` conforme o scroll. O óculos 3D se alinha ao óculos do vídeo e se dissolve nele, um medidor de "Foco" acompanha o progresso e o card de exame entra quando a lente chega ao olho. Com reduced motion aparece o último quadro (nítido), parado.
+- **Óculos reativo:** inclinação e giro pela velocidade do scroll (com mola), parallax pelo mouse, câmera com dolly e balanço, e brilhos 3D.
+- **HTML:** títulos por palavra com máscara (texto inteiro no `aria-label`), cards em leque com tilt 3D, galeria da loja presa na horizontal (carrossel com snap no celular), parallax nas fotos das coleções, faixa "R$ 89,90" reativa e barra de progresso.
+- **Navegação:** pontos na lateral com a cena ativa, link ativo no menu, "role para ver" no hero e botões de cor no preço.
+- Todas as intensidades ficam nas constantes do topo de `components/client/scene.ts`.

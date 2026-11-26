@@ -40,6 +40,7 @@ html.lenis body {
 }
 
 body {
+  overflow-x: clip; /* nada de rolagem lateral (cards girados, faixa inclinada) sem quebrar o sticky */
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
@@ -104,4 +105,101 @@ h3 {
 }
 html.three-ready .glasses-poster {
   opacity: 0;
+}
+
+/* ---------------------------------------------------------------- Cena 2: vídeo no scroll */
+/* A caixa tem a proporção do vídeo e "cobre" a tela via CSS, então o canvas só desenha o quadro inteiro. */
+.seq-box {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(100%, 100svh * 1284 / 716);
+  transform: translate(-50%, -50%);
+}
+@media (max-aspect-ratio: 4/5) {
+  /* celular em pé: faixa mais larga que a tela, centralizada, com as bordas sumindo no fundo */
+  .seq-box {
+    width: 178vw;
+    top: 54%;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent);
+  }
+}
+
+/* ---------------------------------------------------------------- Indicador "role para ver" */
+.scroll-mouse {
+  position: relative;
+  width: 24px;
+  height: 38px;
+  border: 2px solid currentColor;
+  border-radius: 14px;
+}
+.scroll-mouse::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 7px;
+  width: 4px;
+  height: 8px;
+  margin-left: -2px;
+  border-radius: 2px;
+  background: var(--color-pop);
+  animation: scroll-wheel 1.6s ease-in-out infinite;
+}
+@keyframes scroll-wheel {
+  0% { transform: translateY(0); opacity: 1; }
+  70% { transform: translateY(12px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 0; }
+}
+.swipe-hint {
+  display: inline-block;
+  animation: swipe 1.4s ease-in-out infinite;
+}
+@keyframes swipe {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(6px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-mouse::after,
+  .swipe-hint {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------- Galeria da loja */
+.hscroll-track {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-pop) transparent;
+}
+.hpanel {
+  position: relative;
+  flex-shrink: 0;
+  height: 58svh;
+  max-height: 560px;
+  overflow: hidden;
+  border-radius: 1.5rem;
+  scroll-snap-align: center;
+}
+@media (min-width: 768px) {
+  .hpanel {
+    height: 64vh;
+    max-height: 640px;
+  }
+}
+/* modo "preso" (desktop com animação): o JS move a trilha, sem barra de rolagem */
+html.hscroll-pinned .hscroll-track {
+  overflow: visible;
+  scroll-snap-type: none;
+}
+
+/* ---------------------------------------------------------------- Títulos revelados por palavra */
+.word-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+.word-mask > span {
+  display: inline-block;
 }

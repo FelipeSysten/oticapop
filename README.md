@@ -10,6 +10,7 @@ npm install
 npm run dev        # http://localhost:3000
 npm run build      # gera a pasta out/ (site estático pronto para publicar)
 npm run images     # reconverte as fotos de brief/ para public/img (AVIF + WebP)
+npm run frames     # reconverte o vídeo da cena 2 em quadros (precisa do ffmpeg; ou FFMPEG=caminho/ffmpeg.exe)
 ```
 
 ## Onde mexer
@@ -18,7 +19,9 @@ npm run images     # reconverte as fotos de brief/ para public/img (AVIF + WebP)
 |---|---|
 | Dados da loja (telefone, horário, CNPJ, pagamento...) | `lib/site.ts` |
 | Textos e seções | `components/sections.tsx` |
-| Roteiro do óculos 3D (keyframes por seção) | `components/client/scene.ts` |
+| Roteiro do óculos 3D (keyframes por seção) e **intensidade dos efeitos** | `components/client/scene.ts` (constantes no topo) |
+| Vídeo da cena 2 (quadros no scroll) | `components/client/sequence.ts` + `public/seq/exame/` |
+| Efeitos de scroll (títulos, leque, galeria, faixa, barra) | `components/client/MotionRoot.tsx` |
 | Modelo 3D e materiais | `components/client/Glasses.tsx` |
 | Cores e tipografia | `app/globals.css` (bloco `@theme`) e `DESIGN.md` |
 | IDs de GA4, Meta Pixel e domínio | `.env` |
@@ -54,6 +57,19 @@ Todo campo `null` em `lib/site.ts` aparece no site como uma etiqueta amarela **[
 
 **Netlify** também funciona: comando de build `npm run build` e pasta de publicação `out`.
 
+## Interatividade
+
+| Efeito | Onde ajustar |
+|---|---|
+| Óculos inclina e gira com a velocidade do scroll, com efeito de mola | `VELOCITY_TILT`, `VELOCITY_SPIN`, `VELOCITY_SPRING`, `VELOCITY_DAMPING` |
+| Óculos segue o mouse (só mouse/trackpad) | `POINTER_STRENGTH` |
+| Câmera com dolly e balanço sutis | `CAMERA_DOLLY`, `CAMERA_SWAY` |
+| Brilhos 3D ao fundo | `SPARKLE_COUNT` (desligados em aparelho fraco) |
+| Vídeo da cena 2 controlado pelo scroll | `VIDEO_RANGE`, `VIDEO_SMOOTH` |
+| Faixa "R$ 89,90" que acelera e inverte com o scroll | `MARQUEE_SPEED`, `MARQUEE_BOOST` |
+
+Também tem: títulos que entram palavra por palavra, cards de coleções em leque com tilt 3D, galeria da loja presa e andando na horizontal (no celular, um carrossel de arrastar), parallax nas fotos, barra de progresso no topo, navegação por pontos na lateral (desktop) e botões de cor no preço que levam o óculos até aquela cor. Com `prefers-reduced-motion`, nada disso roda.
+
 ## Tracking e LGPD
 
 - Todo CTA de WhatsApp tem `data-track="click_whatsapp"` e `data-location` com a seção. O clique vira evento `click_whatsapp` no GA4 e `Contact` (mais o evento custom) no Meta Pixel.
@@ -64,4 +80,5 @@ Todo campo `null` em `lib/site.ts` aparece no site como uma etiqueta amarela **[
 
 - Com `prefers-reduced-motion`, a página não carrega o 3D nem faz scrub: mostra um óculos estático em SVG e usa o scroll normal.
 - No celular, a cena é simplificada (dpr 1, menos polígonos, sem iridescência), o scroll é nativo e o 3D carrega na primeira interação.
-- Lighthouse do build (Chrome headless): mobile 99–100 em performance e 100 em acessibilidade, boas práticas e SEO. Desktop 100 em tudo.
+- Os quadros do vídeo (2,7 MB no desktop e 1 MB no celular, WebP) só carregam depois do load e quando a cena está perto da tela.
+- Lighthouse do build (Chrome headless): mobile 96–97 em performance e 100 em acessibilidade, boas práticas e SEO. Desktop 100 em tudo.
